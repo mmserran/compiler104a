@@ -1,7 +1,7 @@
 # Mark Anthony Serrano (mmserran@ucsc.edu)
 # Makefile for CMPS 101 pa2  
 
-GPP = g++ -g -O0 -Wall
+GPP = g++ -g -O0 -Wall -Wextra -std=gnu++0x
 GRIND = valgrind --leak-check=full --show-reachable=yes
 
 all : oc 

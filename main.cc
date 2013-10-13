@@ -15,13 +15,14 @@ using namespace std;
 #include <stdlib.h>
 #include <string.h>
 
+#include <GetOpt.h>
 #include <stdio.h>
 #include <vector>
 #include <iostream>
 #include <fstream>
 
 #include "auxlib.h"
-//#include "stringset.h"
+#include "stringset.h"
 
 const string CPP = "/usr/bin/cpp";
 const size_t LINESIZE = 1024;
