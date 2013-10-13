@@ -13,16 +13,16 @@ using namespace std;
 #include <libgen.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 
-#include <GetOpt.h>
-#include <stdio.h>
-#include <vector>
 #include <iostream>
-#include <fstream>
 
-#include "auxlib.h"
-#include "stringset.h"
+#include <vector>       // to use vectors
+#include <string.h>     // to use strings
+#include <unistd.h>     // to use getopt()
+#include <fstream>      // to use popen()
+
+#include "auxlib.h"     // Taken from class website
+#include "stringset.h"  // Taken from class website
 
 const string CPP = "/usr/bin/cpp";
 const size_t LINESIZE = 1024;
@@ -47,10 +47,6 @@ int main (int argc, char **argv) {
     
     string pwd = filename.substr(0, slash);
     string basename = filename.substr(slash, dot-slash);
-    
-    // TEMP ***************
-    cout << "pwd:\t\t" << pwd << "\n";
-    cout << "basename:\t" << basename << "\n";
     
     // 3. Handle options using getopt()
     int c;
@@ -83,7 +79,7 @@ int main (int argc, char **argv) {
     /*************************************************************************/
     
     /*** Generating cpp output ***********************************************/
-    string command = CPP + " " + basename + ".oc";
+    string command = CPP + " " + filename;
     FILE *pipe;;
     char currLine[LINESIZE];
     pipe = popen (command.c_str(), "r");
@@ -99,27 +95,21 @@ int main (int argc, char **argv) {
                 char *token = strtok_r (bufptr, " \t\n", &savepos);
                 bufptr = NULL;
                 if (token == NULL) break;
-                cout << token << " ";
                 // Creating string table using stringset
-                //const string *str = intern_stringset(token);
+                intern_stringset(token);
                 
             }
-            cout << "\n";
         }
-        //dump_stringset (stdout);
         pclose(pipe);
     }
     /*************************************************************************/
     
     
     /*** Creating output program.str file ************************************/
-    ofstream myfile;
-    myfile.open (basename.append(".str").c_str());
-    
-    // TEMP *******************
-    myfile << "Writing this to a file and also hello world.\n";
-    
-    myfile.close();
+
+    FILE *output = fopen(basename.append(".str").c_str(), "w");
+    dump_stringset (output);
+    fclose(output);
     /*************************************************************************/
     
     return 0;

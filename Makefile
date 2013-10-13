@@ -6,8 +6,8 @@ GRIND = valgrind --leak-check=full --show-reachable=yes
 
 all : oc 
 
-oc : main.o
-	$(GPP) main.o -o oc
+oc : main.o stringset.o
+	$(GPP) main.o stringset.o -o oc
 
 %.o : %.cc
 	${GPP} -c $<
@@ -16,7 +16,7 @@ clean:
 	rm -rf *.str oc main.o stringset.o auxlib.o
 
 test:
-	./oc -ly pwd/test/01-hello.oc
+	./oc -ly 01-hello.oc
 	
 gs:
 	$(GRIND) ./oc -ly pwd/test/01-hello.oc
