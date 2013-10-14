@@ -38,8 +38,8 @@ stringset.o : stringset.cc stringset.h
 
 # Collection of tests
 test1:
-	./oc -ly -@c 01-hello.oc
+	./oc -ly -@c ../ocprogs/01-hello.oc
 test2:
-	./oc -ly -@c -D#foo 01-hello.oc
+	./oc -ly -@c -Des ../ocprogs/01-hello.oc
 test3:
-	./oc -ly -@o 01-hello.oc
+	./oc -ly -@o ../ocprogs/01-hello.oc

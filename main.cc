@@ -55,7 +55,7 @@ int main (int argc, char **argv) {
                 break;
             case 'D':
                 // -Dstring Pass this option and its argument to cpp. This is mostly useful as -D__OCLIB_OH__ to suppress inclusion of the code from oclib.oh when testing a program.
-                cppFlags = "-D" + string(optarg) +  " ";
+                cppFlags = "-D" + string(optarg);
                 break;
             case 'l':
                 // -l Debug yylex() with yy_flex_debug = 1
@@ -75,9 +75,7 @@ int main (int argc, char **argv) {
     /*************************************************************************/
     
     /*** Generating cpp output ***********************************************/
-    string command = CPP + " " + cppFlags + filename;
-    // Use -@c to see command string used to call cpp
-    DEBUGF('c', ("Command String: "+string(command)+"\n").c_str() );
+    string command = CPP + " " + cppFlags + " " + filename;
     
     FILE *pipe;;
     char currLine[LINESIZE];
@@ -103,17 +101,20 @@ int main (int argc, char **argv) {
         }
         pclose (pipe);
     }
+    
+    // Use -@c to see command string used to call cpp
+    DEBUGF('c', ("Command String: "+string(command)+"\n").c_str() );
     /*************************************************************************/
     
     /*** Creating output program.str file ************************************/
     const char *outFilename = (string(basename)+".str").c_str();
     
-    // Use -@o to see what file the output will be written to
-    DEBUGF('o', ("Output File: "+string(outFilename)+"\n").c_str() );
-    
     FILE *output = fopen ( outFilename, "w" );
     dump_stringset (output);
     fclose (output);
+    
+    // Use -@o to see what file the output will be written to
+    DEBUGF('o', ("Output File: "+string(outFilename)+"\n").c_str() );
     /*************************************************************************/
     
     return get_exitstatus();
