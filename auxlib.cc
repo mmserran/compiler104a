@@ -7,6 +7,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/wait.h>
+
 #include "auxlib.h"
 
 static int exitstatus = EXIT_SUCCESS;
@@ -101,6 +103,7 @@ void __stubprintf (const char* file, int line, const char* func,
    va_end (args);
    fflush (NULL);
 }     
+
 
 void set_debugflags (const char* flags) {
    debugflags = flags;

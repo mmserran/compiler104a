@@ -1,45 +1,115 @@
 # Mark Anthony Serrano (mmserran@ucsc.edu)
-# Makefile for CS104A - asg1
+# Makefile for CS104A - asg2
 
-GPP = g++ -g -O0 -Wall -Wextra -std=gnu++0x
-GRIND = valgrind --leak-check=full --show-reachable=yes
+MKFILE    = Makefile
+DEPSFILE  = ${MKFILE}.deps
+NOINCLUDE = ci clean spotless
+NEEDINCL  = ${filter ${NOINCLUDE}, ${MAKECMDGOALS}}
+VALGRIND  = valgrind --leak-check=full --show-reachable=yes
 
-all : oc 
+#
+# Definitions of list of files:
+#
+HSOURCES  = astree.h  lyutils.h  auxlib.h  stringset.h
+CSOURCES  = astree.cc lyutils.cc auxlib.cc stringset.cc main.cc
+LSOURCES  = scanner.l
+YSOURCES  = parser.y
+ETCSRC    = README ${MKFILE} ${DEPSFILE}
+CLGEN     = yylex.cc
+HYGEN     = yyparse.h
+CYGEN     = yyparse.cc
+CGENS     = ${CLGEN} ${CYGEN}
+ALLGENS   = ${HYGEN} ${CGENS}
+EXECBIN   = oc
+ALLCSRC   = ${CSOURCES} ${CGENS}
+OBJECTS   = ${ALLCSRC:.cc=.o}
+LREPORT   = yylex.output
+YREPORT   = yyparse.output
+IREPORT   = ident.output
+REPORTS   = ${LREPORT} ${YREPORT} ${IREPORT}
+ALLSRC    = ${ETCSRC} ${YSOURCES} ${LSOURCES} ${HSOURCES} ${CSOURCES}
+TESTINS   = ${wildcard test?.in}
+LISTSRC   = ${ALLSRC} ${HYGEN}
+CLASS     = cmps104a-wm.f13
+PROJECT   = asg2
 
-oc : main.o auxlib.o stringset.o
-	$(GPP) main.o auxlib.o stringset.o -o oc
+#
+# Definitions of the compiler and compilation options:
+#
+GCC       = g++ -g -O0 -Wall -Wextra -std=gnu++0x
+MKDEPS    = g++ -MM -std=gnu++0x
 
+#
+# The first target is always ``all'', and hence the default,
+# and builds the executable images
+#
+all : ${EXECBIN}
+
+#
+# Build the executable image from the object files.
+#
+${EXECBIN} : ${OBJECTS}
+	${GCC} -o${EXECBIN} ${OBJECTS}
+	ident ${OBJECTS} ${EXECBIN} >${IREPORT}
+
+#
+# Build an object file form a C source file.
+#
 %.o : %.cc
-	${GPP} -c $<
+	${GCC} -c $<
 
-clean:
-	rm -rf *.str main.o stringset.o auxlib.o
+
+#
+# Build the scanner.
+#
+${CLGEN} : ${LSOURCES}
+	flex --outfile=${CLGEN} ${LSOURCES} 2>${LREPORT}
+	- grep -v '^  ' ${LREPORT}
 
-spotless:
-	rm -rf *.str oc main.o stringset.o auxlib.o
-	
+#
+# Build the parser.
+#
+${CYGEN} ${HYGEN} : ${YSOURCES}
+	bison --defines=${HYGEN} --output=${CYGEN} ${YSOURCES}
+
+#
+# Check sources into GIT subdirectory.
+#
 ci:
 	make spotless
 	git add *
-	git commit -m "Makefile generated commit"
+	git commit -m "MSG"
 	git push origin master
 
-gs:
-	$(GRIND) ./oc -ly 01-hello.oc
+#
+# Clean and spotless remove generated files.
+#
+clean :
+	- rm ${OBJECTS} ${ALLGENS} ${REPORTS} ${DEPSFILE}
 
-deps : auxlib.o stringset.o
-	${GPP} -c auxlib.cc
-	${GPP} -c stringset.cc
+spotless : clean
+	- rm ${EXECBIN}
 
-# Dependencies
-main.o : main.cc
-auxlib.o : auxlib.cc auxlib.h
-stringset.o : stringset.cc stringset.h
+
+#
+# Build the dependencies file using the C preprocessor
+#
+deps : ${ALLCSRC}
+	@ echo "# ${DEPSFILE} created `date` by ${MAKE}" >${DEPSFILE}
+	${MKDEPS} ${ALLCSRC} >>${DEPSFILE}
 
-# Collection of tests
-test1:
-	./oc -ly -@c ../ocprogs/01-hello.oc
-test2:
-	./oc -ly -@c -Des ../ocprogs/01-hello.oc
-test3:
-	./oc -ly -@o ../ocprogs/01-hello.oc
+${DEPSFILE} :
+	@ touch ${DEPSFILE}
+	${MAKE} --no-print-directory deps
+
+#
+# Make sure to submit to correct class/assignment!!
+#
+submit : ${ALLSOURCES}
+	submit ${CLASS} ${PROJECT} *
+
+	
+ifeq "${NEEDINCL}" ""
+include ${DEPSFILE}
+endif
+
