@@ -100,56 +100,27 @@ int main (int argc, char** argv) {
     
     outFilename = (string(basename)+".str").c_str();
     strout = fopen( outFilename, "w" );
-    
     outFilename = (string(basename)+".tok").c_str();
     tokout = fopen( outFilename, "w" );
-    
-    /*** LEXER ***************************************************************/
-    string currentFile = "uninitialized";
-    int temp = 0;
-    while ( yylex()>0 ){
-        //*****************************
-        //Generating program.TOK output
-        string directive = *(scanner_filename(yylval->filenr));
-        // print file information
-        if ( currentFile!=directive ){
-            if ( currentFile!="uninitialized" )
-                temp = 1;
-            currentFile = directive;
-            directive = directive.substr(directive.find_last_of('/')+1, string::npos);
-            fprintf (tokout, "# %d \"%s\"\n", (int)yylval->linenr-temp, directive.c_str());
-        }
-        // print token information
-        fprintf (tokout, "%2ld %3ld.%03ld %4d  %-15s \(%s\)\n",
-                 yylval->filenr, yylval->linenr, yylval->offset,
-                 yylval->symbol, get_yytname( yylval->symbol ), 
-                 yylval->lexinfo->c_str());
-        
-        //*****************************
-        //Generating program.STR output
-        intern_stringset( yytext );
-    }
-    dump_stringset( strout );
-    /*************************************************************************/
+
     
     /*** PARSER **************************************************************/
-    //*****************************
-    //Would be generating program.AST output
-    //parsecode = yyparse();
+    parsecode = yyparse();
     if (parsecode) {
         errprintf ("%:parse failed (%d)\n", parsecode);
     }else {
         DEBUGSTMT ('a', dump_astree (stderr, yyparse_astree); );
     }
-    //freeast (yyparse_astree);
     /*************************************************************************/
     
     //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
     //> Close all files handles and yyin
     fclose( tokout );
     fclose( strout );
+
+    //free_ast (yyparse_astree);
+
     yyin_cpp_pclose();
-    
     yylex_destroy();
     
    return get_exitstatus();
