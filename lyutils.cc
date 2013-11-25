@@ -66,6 +66,12 @@ int yylval_token (int symbol) {
    int offset = scan_offset - yyleng;
    yylval = new_astree (symbol, included_filenames.size() - 1,
                         scan_linenr, offset, yytext);
+
+   fprintf (tokout, "%2ld %3ld.%03ld %4d  %-15s \(%s\)\n",
+                    yylval->filenr, yylval->linenr, yylval->offset,
+                    yylval->symbol, get_yytname( yylval->symbol ),
+                    yylval->lexinfo->c_str());
+
    return symbol;
 }
 
@@ -79,10 +85,14 @@ astree* new_parseroot (void) {
    yyparse_astree = new_astree (ROOT, 0, 0, 0, "<<ROOT>>");
    return yyparse_astree;
 }
+
 void scanner_include (void) {
    scanner_newline();
    char filename[strlen (yytext) + 1];
    int linenr;
+
+   fprintf(tokout, "%s\n", yytext);
+
    int scan_rc = sscanf (yytext, "# %d \"%[^\"]\"", &linenr, filename);
    if (scan_rc != 2) {
       errprintf ("%: %d: [%s]: invalid directive, ignored\n",
