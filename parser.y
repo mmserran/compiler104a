@@ -34,14 +34,25 @@
 %right	TOK_POS TOK_NEG '!' TOK_CHAR
 %left	'[' ']' '.' '(' ')'
 
-%start start
+%start	start
 
 %%
 
 start	: program	{ yyparse_astree = $1; }
 		;
 
-program : program token | ;
+program : program structdef		{ $$ = adopt1($1, $2); }
+		| program function		{ $$ = adopt1($1, $2); }
+		| program statement		{ $$ = adopt1($1, $2); }
+		|						{ $$ = new_parseroot(); }
+		;
+		
+structdef : structdef token | token ;
+
+function : function token | token ;
+
+statement : statement token | token ;
+		
 token   : '(' | ')' | '[' | ']' | '{' | '}' | ';' | ',' | '.'
         | '=' | '+' | '-' | '*' | '/' | '%' | '!'
         | TOK_VOID | TOK_BOOL | TOK_CHAR | TOK_INT | TOK_STRING
