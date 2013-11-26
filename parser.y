@@ -77,12 +77,13 @@ paramdecls : decl ',' paramdecls
 		   |
 		   ;
 		   
-block : '{' stmts '}'
-	  | ';'
+block : '{' stmts '}'	{ free_ast2($1, $3); $$ = $2; }
+	  | '{' '}'			{ free_ast2($1, $2); }
+	  | ';'				{ free_ast($1); }
 	  ;
 	  
-stmts : stmts statement
-	  | statement
+stmts : stmts statement	{ $$ = adopt1($1, $2); }
+	  | statement		{ $$ = parent("", $1); }
 	  ;
 	  
 statement : block  		{ $$ = rename($1, "block");	  }
