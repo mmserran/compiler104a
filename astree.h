@@ -13,6 +13,8 @@ struct astree {
    size_t linenr;            // line number from source code
    size_t offset;            // offset of token with current line
    const string* lexinfo;    // pointer to lexical information
+   const char* nonterminal;
+   bool terminal;
    vector<astree*> children; // children of this n-way node
 };
 
@@ -21,6 +23,7 @@ astree* new_astree (int symbol, int filenr, int linenr, int offset,
                     const char* lexinfo);
 astree* adopt1 (astree* root, astree* child);
 astree* adopt2 (astree* root, astree* left, astree* right);
+astree* rename (astree* root, const char* name) ;
 astree* adopt1sym (astree* root, astree* child, int symbol);
 void dump_astree (FILE* outfile, astree* root);
 void yyprint (FILE* outfile, unsigned short toknum, astree* yyvaluep);

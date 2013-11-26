@@ -68,8 +68,6 @@ int yylval_token (int symbol) {
    yylval = new_astree (symbol, included_filenames.size() - 1,
                         scan_linenr, offset, yytext);
 
-   //Enter text into stringset
-   intern_stringset( yytext );
 
    //Write token data to .tok file
    fprintf (tokout, "%2ld %3ld.%03ld %4d  %-15s \(%s\)\n",

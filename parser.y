@@ -54,18 +54,19 @@ decls : decls decl ';'
 	  | decl ';'
 	  ;
 	  
-decl : type TOK_IDENT
+decl : basetype TOK_ARRAY TOK_IDENT { $$ = adopt2($1, $2, $3); }
+	 | basetype TOK_IDENT			   { $$ = adopt1($1, $2); }
 	 ;
-	 
-type : basetype TOK_ARRAY
-     | basetype
-     ;
      
-basetype : TOK_VOID | TOK_BOOL   | TOK_CHAR 
-		 | TOK_INT  | TOK_STRING | TOK_IDENT
+basetype : TOK_VOID		{ $$ = $1; } 
+		 | TOK_BOOL		{ $$ = $1; } 
+		 | TOK_CHAR		{ $$ = $1; } 
+		 | TOK_INT		{ $$ = $1; } 
+		 | TOK_STRING	{ $$ = $1; } 
+		 | TOK_IDENT	{ $$ = $1; } 
 		 ;
 
-function : type TOK_IDENT '('  paramdecls ')' block
+function : decl '('  paramdecls ')' block
 		 ;
 
 paramdecls : decl ',' paramdecls
@@ -81,12 +82,15 @@ stmts : stmts statement
 	  | statement
 	  ;
 	  
-statement : block  | vardecl
-		  | while  | ifelse
-		  | return | expr ';'
+statement : block  		{ $$ = $1; }
+		  | vardecl		{ $$ = $1; }
+		  | while  		{ $$ = $1; }
+		  | ifelse		{ $$ = $1; }
+		  | return 		{ $$ = $1; }
+		  | expr ';'	{ free_ast($2); $$ = $1; }
 		  ;
 
-vardecl : type TOK_IDENT '=' expr ';'
+vardecl : decl '=' expr ';'	{ free_ast($4); $$ = rename(adopt2($2, $1, $3), "vardecl"); }
 		;
 		
 while : TOK_WHILE '(' expr ')' statement
@@ -105,24 +109,24 @@ listexpr : listexpr ',' expr
 		 |
 		 ;
 	
-expr : expr '+' expr
-	 | '+' expr %prec TOK_POS
-	 | expr '-' expr
-	 | '-' expr %prec TOK_NEG
-	 | expr '=' expr
-	 | expr TOK_EQ expr
-	 | expr TOK_NE expr
-	 | expr TOK_LT expr
-	 | expr TOK_GT expr
-	 | expr TOK_LE expr
-	 | expr TOK_GE expr
-	 | expr '.' expr
-	 | expr '*' expr
-	 | allocator
-	 | call
-	 | '(' expr ')'
-	 | variable
-	 | constant
+expr : expr '+' expr			{ $$ = adopt2($2, $1, $3); }
+	 | '+' expr %prec TOK_POS	{ $$ = adopt1sym($1, $2, TOK_POS); }
+	 | expr '-' expr			{ $$ = adopt2($2, $1, $3); }
+	 | '-' expr %prec TOK_NEG	{ $$ = adopt1sym($1, $2, TOK_NEG); }
+	 | expr '=' expr			{ $$ = adopt2($2, $1, $3); }
+	 | expr TOK_EQ expr			{ $$ = adopt2($2, $1, $3); }
+	 | expr TOK_NE expr			{ $$ = adopt2($2, $1, $3); }
+	 | expr TOK_LT expr			{ $$ = adopt2($2, $1, $3); }
+	 | expr TOK_GT expr			{ $$ = adopt2($2, $1, $3); }
+	 | expr TOK_LE expr			{ $$ = adopt2($2, $1, $3); }
+	 | expr TOK_GE expr			{ $$ = adopt2($2, $1, $3); }
+	 | expr '.' expr			{ $$ = adopt2($2, $1, $3); }
+	 | expr '*' expr			{ $$ = adopt2($2, $1, $3); }
+	 | allocator				{ $$ = $1; }
+	 | call						{ $$ = $1; }
+	 | '(' expr ')'				{ free_ast2($1, $3); $$ = $2; }
+	 | variable					{ $$ = $1; }
+	 | constant					{ $$ = $1; }
 	 ;
 			
 allocator : TOK_NEW basetype '(' ')' 

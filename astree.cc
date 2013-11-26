@@ -18,6 +18,7 @@ astree* new_astree (int symbol, int filenr, int linenr, int offset,
    tree->linenr = linenr;
    tree->offset = offset;
    tree->lexinfo = intern_stringset (lexinfo);
+   tree->terminal = true;
    DEBUGF ('f', "astree %p->{%d:%d.%d: %s: \"%s\"}\n",
            tree, tree->filenr, tree->linenr, tree->offset,
            get_yytname (tree->symbol), tree->lexinfo->c_str());
@@ -27,15 +28,21 @@ astree* new_astree (int symbol, int filenr, int linenr, int offset,
 
 astree* adopt1 (astree* root, astree* child) {
    root->children.push_back (child);
-   DEBUGF ('a', "%p (%s) adopting %p (%s)\n",
-           root, root->lexinfo->c_str(),
-           child, child->lexinfo->c_str());
+   DEBUGF ('a', "(%s) adopting (%s)\n",
+           root->lexinfo->c_str(),
+           child->lexinfo->c_str());
    return root;
 }
 
 astree* adopt2 (astree* root, astree* left, astree* right) {
    adopt1 (root, left);
    adopt1 (root, right);
+   return root;
+}
+
+astree* rename (astree* root, const char* name) {
+   root->nonterminal = name;
+   root->terminal = false;
    return root;
 }
 
@@ -47,13 +54,16 @@ astree* adopt1sym (astree* root, astree* child, int symbol) {
 
 
 static void dump_node (FILE* outfile, astree* node) {
-   fprintf (outfile, "%s",
-            get_yytname (node->symbol));
+   if (node->terminal) {
+	   fprintf (outfile, "%s", get_yytname(node->symbol ));
+   } else {
+	   fprintf (outfile, "%s", node->nonterminal);
+   }
    bool need_space = false;
    for (size_t child = 0; child < node->children.size(); ++child) {
       if (need_space) fprintf (outfile, " ");
       need_space = true;
-      //fprintf (outfile, "%p", node->children.at(child));
+     //fprintf (outfile, "%p", node->children.at(child));
    }
    //fprintf (outfile, "]}");
 }
