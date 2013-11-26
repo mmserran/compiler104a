@@ -29,7 +29,7 @@ const size_t LINESIZE = 1024;
 string cppFlags;
 string yyin_cpp_command;
 
-FILE *tokout, *strout;
+FILE *tokout, *strout, *astout;
 const char *outFilename;
 
 //Open a pipe from the C preprocessor and assign to yyin
@@ -102,9 +102,11 @@ int main (int argc, char** argv) {
     strout = fopen( outFilename, "w" );
     outFilename = (string(basename)+".tok").c_str();
     tokout = fopen( outFilename, "w" );
+    outFilename = (string(basename)+".ast").c_str();
+    astout = fopen( outFilename, "w" );
 
     
-    /*** PARSER **************************************************************/
+    /*** MAGIC **************************************************************/
     parsecode = yyparse();
     if (parsecode) {
         errprintf ("%:parse failed (%d)\n", parsecode);
@@ -113,6 +115,8 @@ int main (int argc, char** argv) {
     }
     /*************************************************************************/
     
+
+
     //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
     //> Close all files handles and yyin
     fclose( tokout );
