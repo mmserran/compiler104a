@@ -47,15 +47,12 @@ program : program structdef		{ $$ = adopt1($1, $2); }
 		|						{ $$ = new_parseroot(); }
 		;
 		
-structdef : TOK_STRUCT TOK_IDENT '{' decls '}'
+structdef : TOK_STRUCT TOK_IDENT '{' decls '}' 		{ free_ast2($3, $5); adopt2($1, $2, $4); }
 		  ;
-
-decls : decls decl ';'
-	  | decl ';'
-	  ;
 	  
-decl : type TOK_IDENT	{ $$ = parent("type", $1); }
-	 ;
+decls : decls decl';'	{ free_ast($3); $$ = adopt1($1, $2); }
+	  | decl ';'		{ free_ast($2); $$ = $1; }
+	  ;
 	  
 type : basetype TOK_NEWARRAY { $$ = adopt1($1, $2); }
 	 | basetype				 { $$ = parent("basetype", $1); }
@@ -69,23 +66,25 @@ basetype : TOK_VOID		{ $$ = $1; }
 		 | TOK_IDENT	{ $$ = $1; } 
 		 ;
 
-function : type TOK_IDENT '(' params ')' block	{ free_ast2($3, $5); 
-												  $1 = parent("function", parent("type", $1)); 
-												  $$ = adopt3($1, $2, $4, $6); }
-		 | type TOK_IDENT '(' ')' block			{ free_ast2($3, $4);}
+function : type TOK_IDENT declList ')' block	{ free_ast($4); $$ = adopt3($3, $1, $2, $5); }
+		 | type TOK_IDENT '(' ')' block			{ free_ast($4); $$ = adopt3($3, $1, $2, $5); }
 		 ;
-
-params : params ',' decl
-	   | decl
-	   ;
+		 
+declList : '(' decl				{ $$ = rename(adopt1($1, $2), "function"); }
+	     | declList ',' decl	{ free_ast($2); $$ = adopt1($1, $3); }
+	     | '('					{ $$ = rename($1, "function"); }
+	     ;
+		 
+decl : type TOK_IDENT	{ $$ = parent("type", $1); }
+	 ;
 		   
-block : '{' stmts '}'	{ free_ast2($1, $3); $$ = $2; }
-	  | '{' '}'			{ free_ast2($1, $2); }
-	  | ';'				{ free_ast($1); }
+block : '{' stmts '}'	{ free_ast($3); $$ = rename(adopt1($1, $2), "block"); }
+	  | '{' '}'			{ free_ast($2); $$ = $1; }
+	  | ';'				{ $$ = $1; }
 	  ;
 	  
 stmts : stmts statement	{ $$ = adopt1($1, $2); }
-	  | statement		{ $$ = parent("", $1); }
+	  | statement		{ $$ = $1; }
 	  ;
 	  
 statement : block  		{ $$ = rename($1, "block");	  }
@@ -106,8 +105,8 @@ ifelse : TOK_IF '(' expr ')' statement %prec TOK_ELSE		{ free_ast2($2, $4); adop
 	   | TOK_IF '(' expr ')' statement TOK_ELSE statement	{ free_ast2($2, $4); adopt3($1, $3, $5, $7); }
 	   ;
 	  
-return : TOK_RETURN ';'
-	   | TOK_RETURN expr ';'
+return : TOK_RETURN ';'			{ $$ = $1 }
+	   | TOK_RETURN expr ';'	{ $$ = adopt1($1, $2); }
 	   ;
 	
 expr : expr '+' expr			{ $$ = rename(adopt2(parent("", $1), $2, $3) , "binop"); }
@@ -137,18 +136,18 @@ allocator : TOK_NEW basetype '(' ')'
 		  | TOK_NEW basetype '[' expr ']'
 		  ;
 		 
-call : TOK_IDENT params ')'	{ free_ast($3); $$ = adopt1($2, $1); }
-	 | TOK_IDENT '(' ')' 	{ free_ast($3); $$ = adopt1($2, $1); }
+call : TOK_IDENT exprList ')'	{ free_ast($3); $$ = adopt1($2, $1); }
+	 | TOK_IDENT '(' ')' 		{ free_ast($3); $$ = adopt1($2, $1); }
 	 ;
 	 
-params : '(' expr			{ $$ = rename(adopt1($1, $2), "call"); }
-	   | params ',' expr	{ free_ast($2); $$ = adopt1($1, $3); }
-	   | '('				{ $$ = rename($1, "call"); }
-	   ;
+exprList : '(' expr				{ $$ = rename(adopt1($1, $2), "call"); }
+	     | exprList ',' expr	{ free_ast($2); $$ = adopt1($1, $3); }
+	     | '('					{ $$ = rename($1, "call"); }
+	     ;
 	 
-variable : TOK_IDENT
-		 | expr '[' expr ']'
-		 | expr '.' TOK_IDENT
+variable : TOK_IDENT			{ $$ = $1; }
+		 | expr '[' expr ']'	{ free_ast2($2, $4); $$ = adopt1($1, $3); }
+		 | expr '.' TOK_IDENT	{ free_ast($2); $$ = adopt1($1, $3); }
 		 ;
 		 
 constant : TOK_INTCON 		{ $$ = $1; }
