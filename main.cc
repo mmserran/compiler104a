@@ -115,7 +115,7 @@ int main (int argc, char** argv) {
     }
     /*************************************************************************/
     
-
+    dump_stringset( strout );
 
     //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
     //> Close all files handles and yyin
