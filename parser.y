@@ -38,7 +38,7 @@
 
 %%
 
-start	: program	{ yyparse_astree = $1; }
+start	: program	{ yyparse_astree = rename($1, "program"); }
 		;
 
 program : program structdef		{ $$ = adopt1($1, $2); }
@@ -54,8 +54,11 @@ decls : decls decl ';'
 	  | decl ';'
 	  ;
 	  
-decl : basetype TOK_ARRAY TOK_IDENT { $$ = adopt2($1, $2, $3); }
-	 | basetype TOK_IDENT			   { $$ = adopt1($1, $2); }
+decl : type TOK_IDENT	{ $$ = $1; }
+	 ;
+	  
+type : basetype TOK_NEWARRAY { $$ = adopt1($1, $2); }
+	 | basetype				 { $$ = parent("basetype", $1); }
 	 ;
      
 basetype : TOK_VOID		{ $$ = $1; } 
@@ -83,14 +86,15 @@ stmts : stmts statement
 	  ;
 	  
 statement : block  		{ $$ = $1; }
-		  | vardecl		{ $$ = $1; }
+		  | vardecl		{ $$ = rename($1, "vardecl"); }
 		  | while  		{ $$ = $1; }
 		  | ifelse		{ $$ = $1; }
 		  | return 		{ $$ = $1; }
 		  | expr ';'	{ free_ast($2); $$ = $1; }
 		  ;
 
-vardecl : decl '=' expr ';'	{ free_ast($4); $$ = rename(adopt2($2, $1, $3), "vardecl"); }
+vardecl : type TOK_IDENT '=' expr ';'	{ free_ast($5);
+										  $$ = adopt3($3, parent("type", $1), $2, $4); }
 		;
 		
 while : TOK_WHILE '(' expr ')' statement
@@ -126,7 +130,7 @@ expr : expr '+' expr			{ $$ = adopt2($2, $1, $3); }
 	 | call						{ $$ = $1; }
 	 | '(' expr ')'				{ free_ast2($1, $3); $$ = $2; }
 	 | variable					{ $$ = $1; }
-	 | constant					{ $$ = $1; }
+	 | constant					{ $$ = parent("constant", $1); }
 	 ;
 			
 allocator : TOK_NEW basetype '(' ')' 
@@ -142,8 +146,12 @@ variable : TOK_IDENT
 		 | expr '.' TOK_IDENT
 		 ;
 		 
-constant : TOK_INTCON | TOK_CHARCON | TOK_STRINGCON
-		 | TOK_FALSE  | TOK_TRUE 	| TOK_NULL
+constant : TOK_INTCON 		{ $$ = $1; }
+		 | TOK_CHARCON 		{ $$ = $1; }
+		 | TOK_STRINGCON	{ $$ = $1; }
+		 | TOK_FALSE  		{ $$ = $1; }
+		 | TOK_TRUE 		{ $$ = $1; }
+		 | TOK_NULL			{ $$ = $1; }
 		 ;
 
 %%

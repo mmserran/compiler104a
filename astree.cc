@@ -40,10 +40,22 @@ astree* adopt2 (astree* root, astree* left, astree* right) {
    return root;
 }
 
+astree* adopt3 (astree* root, astree* one, astree* two, astree* three) {
+   adopt1 (root, one);
+   adopt1 (root, two);
+   adopt1 (root, three);
+   return root;
+}
+
 astree* rename (astree* root, const char* name) {
    root->nonterminal = name;
    root->terminal = false;
    return root;
+}
+
+astree* parent (const char* name, astree* child) {
+	astree* parent = new_astree(0, 0, 0, 0, ".");
+	return rename(adopt1(parent, child), name);
 }
 
 astree* adopt1sym (astree* root, astree* child, int symbol) {
