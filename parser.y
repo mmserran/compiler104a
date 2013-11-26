@@ -100,7 +100,7 @@ vardecl : type TOK_IDENT '=' expr ';'	{ free_ast($5); $$ = adopt3($3, parent("ty
 while : TOK_WHILE '(' expr ')' statement	{ $$ = adopt2($1, $3, $5); free_ast2($2, $4); }
 	  ;
 	  
-ifelse : TOK_IF '(' expr ')' statement
+ifelse : TOK_IF '(' expr ')' statement %prec TOK_ELSE
 	   | TOK_IF '(' expr ')' statement TOK_ELSE statement
 	   ;
 	  
@@ -108,10 +108,10 @@ return : TOK_RETURN ';'
 	   | TOK_RETURN expr ';'
 	   ;
 	
-listexpr : listexpr ',' expr
-		 | expr
-		 |
-		 ;
+params : params ',' expr
+	   | expr
+	   |
+	   ;
 	
 expr : expr '+' expr			{ $$ = rename(adopt2(parent("", $1), $2, $3) , "binop"); }
 	 | '+' expr %prec TOK_POS	{ $$ = adopt1sym($1, $2, TOK_POS); }
@@ -138,7 +138,7 @@ allocator : TOK_NEW basetype '(' ')'
 		  | TOK_NEW basetype '[' expr ']'
 		  ;
 		 
-call : TOK_IDENT '(' listexpr ')'
+call : TOK_IDENT '(' params ')'
 	 ;
 	 
 variable : TOK_IDENT
