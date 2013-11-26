@@ -55,7 +55,10 @@ astree* rename (astree* root, const char* name) {
 
 astree* parent (const char* name, astree* child) {
 	astree* parent = new_astree(0, 0, 0, 0, ".");
-	return rename(adopt1(parent, child), name);
+	if (name)
+		return rename(adopt1(parent, child), name);
+	else
+		return adopt1(parent, child);
 }
 
 astree* adopt1sym (astree* root, astree* child, int symbol) {
@@ -67,7 +70,7 @@ astree* adopt1sym (astree* root, astree* child, int symbol) {
 
 static void dump_node (FILE* outfile, astree* node) {
    if (node->terminal) {
-	   fprintf (outfile, "%s", get_yytname(node->symbol ));
+	   fprintf (outfile, "%s (%s)", get_yytname(node->symbol), node->lexinfo->c_str());
    } else {
 	   fprintf (outfile, "%s", node->nonterminal);
    }
