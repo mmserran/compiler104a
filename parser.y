@@ -102,8 +102,8 @@ vardecl : type TOK_IDENT '=' expr ';'	{ free_ast($5); $$ = adopt3($3, parent("ty
 while : TOK_WHILE '(' expr ')' statement	{ $$ = adopt2($1, $3, $5); free_ast2($2, $4); }
 	  ;
 	  
-ifelse : TOK_IF '(' expr ')' statement %prec TOK_ELSE
-	   | TOK_IF '(' expr ')' statement TOK_ELSE statement
+ifelse : TOK_IF '(' expr ')' statement %prec TOK_ELSE		{ free_ast2($2, $4); adopt2($1, $3, $5); }
+	   | TOK_IF '(' expr ')' statement TOK_ELSE statement	{ free_ast2($2, $4); adopt3($1, $3, $5, $7); }
 	   ;
 	  
 return : TOK_RETURN ';'
