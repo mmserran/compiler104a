@@ -74,7 +74,6 @@ int yylval_token (int symbol) {
                     yylval->filenr, yylval->linenr, yylval->offset,
                     yylval->symbol, get_yytname( yylval->symbol ),
                     yylval->lexinfo->c_str());
-
    return symbol;
 }
 

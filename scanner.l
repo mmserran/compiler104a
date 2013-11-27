@@ -38,7 +38,7 @@ BADCHARACTER    ('([^\\'\n]|\\[\\'"0nt]))
 \n              { scanner_newline();                    }
 "#".*           { scanner_include();                    }
 
-"[]"            { return yylval_token(TOK_NEWARRAY);    }
+"[]"            { return yylval_token(TOK_ARRAY);    }
 "("             { return yylval_token('(');             }
 ")"             { return yylval_token(')');             }
 "["             { return yylval_token('[');             }
