@@ -17,6 +17,8 @@
 %token-table
 %verbose
 
+%token  PROGRAM TOK_BLOCK
+%token  TOK_PARAMS TOK_VARDECL TOK_IFELSE TOK_CALL
 %token	TOK_VOID TOK_BOOL TOK_INT TOK_STRING
 %token	TOK_WHILE TOK_RETURN TOK_STRUCT
 %token	TOK_FALSE TOK_TRUE TOK_NULL TOK_NEW TOK_ARRAY
@@ -37,7 +39,7 @@
 
 %%
 
-start	: program	{ yyparse_astree = rename($1, "program"); }
+start	: program	{ yyparse_astree = rename($1, "program", PROGRAM); }
 		;
 
 program : program structdef		{ $$ = adopt1($1, $2); }
@@ -46,7 +48,7 @@ program : program structdef		{ $$ = adopt1($1, $2); }
 		|						{ $$ = new_parseroot(); }
 		;
 		
-structdef : TOK_STRUCT TOK_IDENT '{' decls '}' 		{ free_ast2($3, $5); adopt2(rename($1, "structdef"), $2, $4); }
+structdef : TOK_STRUCT TOK_IDENT '{' decls '}' 		{ free_ast2($3, $5); adopt2(rename($1, "structdef", TOK_STRUCT), $2, $4); }
 		  ;
 	  
 decls : decls decl';'	{ free_ast($3); $$ = adopt1($1, $2); }
@@ -68,28 +70,28 @@ basetype : TOK_VOID		{ $$ = $1; }
 function : type TOK_IDENT params ')' block	{ free_ast($4); $$ = parent("function", parent("type", $1)); $$ = adopt3($$, $3, $2, $5); }
 		 ;
 		 
-params : '(' decl			{ $$ = adopt1(rename($1, "params"), $2); }
+params : '(' decl			{ $$ = adopt1(rename($1, "params", TOK_PARAMS), $2); }
 	     | params ',' decl	{ free_ast($2); $$ = adopt1($1, $3); }
-	     | '('				{ $$ = rename($1, "params"); }
+	     | '('				{ $$ = rename($1, "params", TOK_PARAMS); }
 	     ;
 		 
 decl : type TOK_IDENT	{ $$ = adopt1(parent("decl", parent("type", $1)), $2); }
 	 ;
 		   
-block : '{' stmts '}'	{ free_ast($3); $$ = rename(adopt1($1, $2), "block"); }
-	  | '{' '}'			{ free_ast($2); $$ = rename($1, "block"); }
-	  | ';'				{ $$ = rename($1, "block"); }
+block : '{' stmts '}'	{ free_ast($3); $$ = rename(adopt1($1, $2), "block", TOK_BLOCK); }
+	  | '{' '}'			{ free_ast($2); $$ = rename($1, "block", TOK_BLOCK); }
+	  | ';'				{ $$ = rename($1, "block", TOK_BLOCK); }
 	  ;
 	  
 stmts : stmts statement	{ $$ = adopt1($1, $2); }
 	  | statement		{ $$ = $1; }
 	  ;
 	  
-statement : block  		{ $$ = rename($1, "block");	  }
-		  | vardecl		{ $$ = rename($1, "vardecl"); }
-		  | while  		{ $$ = rename($1, "while");   }
-		  | ifelse		{ $$ = rename($1, "ifelse");  }
-		  | return 		{ $$ = rename($1, "return");  }
+statement : block  		{ $$ = rename($1, "block", TOK_BLOCK);	  }
+		  | vardecl		{ $$ = rename($1, "vardecl", TOK_VARDECL); }
+		  | while  		{ $$ = rename($1, "while", TOK_WHILE);   }
+		  | ifelse		{ $$ = rename($1, "ifelse", TOK_IFELSE);  }
+		  | return 		{ $$ = rename($1, "return", TOK_RETURN);  }
 		  | expr ';'	{ free_ast($2); $$ = $1; 	  }
 		  ;
 
@@ -107,21 +109,21 @@ return : TOK_RETURN ';'			{ $$ = $1 }
 	   | TOK_RETURN expr ';'	{ $$ = adopt1($1, $2); }
 	   ;
 	
-expr : expr '+' expr			{ $$ = rename(adopt2(parent("", $1), $2, $3) , "binop"); }
-	 | expr '-' expr			{ $$ = rename(adopt2(parent("", $1), $2, $3) , "binop"); }
-	 | expr '=' expr			{ $$ = rename(adopt2(parent("", $1), $2, $3) , "binop"); }
-	 | expr TOK_EQ expr			{ $$ = rename(adopt2(parent("", $1), $2, $3) , "binop"); }
-	 | expr TOK_NE expr			{ $$ = rename(adopt2(parent("", $1), $2, $3) , "binop"); }
-	 | expr TOK_LT expr			{ $$ = rename(adopt2(parent("", $1), $2, $3) , "binop"); }
-	 | expr TOK_GT expr			{ $$ = rename(adopt2(parent("", $1), $2, $3) , "binop"); }
-	 | expr TOK_LE expr			{ $$ = rename(adopt2(parent("", $1), $2, $3) , "binop"); }
-	 | expr TOK_GE expr			{ $$ = rename(adopt2(parent("", $1), $2, $3) , "binop"); }
-	 | expr '.' expr			{ $$ = rename(adopt2(parent("", $1), $2, $3) , "binop"); }
-	 | expr '*' expr			{ $$ = rename(adopt2(parent("", $1), $2, $3) , "binop"); }
-	 | '+' expr %prec TOK_POS	{ $$ = rename(adopt1sym($1, $2, TOK_POS), "unop"); }
-	 | '-' expr %prec TOK_NEG	{ $$ = rename(adopt1sym($1, $2, TOK_NEG), "unop"); }
-	 | TOK_ORD expr				{ $$ = rename(adopt1($1, $2), "unop"); }
-	 | TOK_CHR expr				{ $$ = rename(adopt1($1, $2), "unop"); }
+expr : expr '+' expr			{ $$ = rename(adopt2(parent("", $1), $2, $3) , "binop", '+'); }
+	 | expr '-' expr			{ $$ = rename(adopt2(parent("", $1), $2, $3) , "binop", '-'); }
+	 | expr '=' expr			{ $$ = rename(adopt2(parent("", $1), $2, $3) , "binop", '='); }
+	 | expr TOK_EQ expr			{ $$ = rename(adopt2(parent("", $1), $2, $3) , "binop", TOK_EQ); }
+	 | expr TOK_NE expr			{ $$ = rename(adopt2(parent("", $1), $2, $3) , "binop", TOK_NE); }
+	 | expr TOK_LT expr			{ $$ = rename(adopt2(parent("", $1), $2, $3) , "binop", TOK_LT); }
+	 | expr TOK_GT expr			{ $$ = rename(adopt2(parent("", $1), $2, $3) , "binop", TOK_GT); }
+	 | expr TOK_LE expr			{ $$ = rename(adopt2(parent("", $1), $2, $3) , "binop", TOK_LE); }
+	 | expr TOK_GE expr			{ $$ = rename(adopt2(parent("", $1), $2, $3) , "binop", TOK_GE); }
+	 | expr '.' expr			{ $$ = rename(adopt2(parent("", $1), $2, $3) , "binop", '.'); }
+	 | expr '*' expr			{ $$ = rename(adopt2(parent("", $1), $2, $3) , "binop", '*'); }
+	 | '+' expr %prec TOK_POS	{ $$ = rename(adopt1sym($1, $2, TOK_POS), "unop", TOK_POS); }
+	 | '-' expr %prec TOK_NEG	{ $$ = rename(adopt1sym($1, $2, TOK_NEG), "unop", TOK_NEG); }
+	 | TOK_ORD expr				{ $$ = rename(adopt1($1, $2), "unop", TOK_ORD); }
+	 | TOK_CHR expr				{ $$ = rename(adopt1($1, $2), "unop", TOK_CHR); }
 	 | allocator				{ $$ = parent("allocator", $1); }
 	 | call						{ $$ = $1; }
 	 | '(' expr ')'				{ free_ast2($1, $3); $$ = $2;   }
@@ -137,9 +139,9 @@ allocator : TOK_NEW basetype '(' ')' 		{ free_ast2($3, $4); $1->symbol = TOK_TYP
 call : TOK_IDENT exprList ')'	{ free_ast($3); $$ = adopt1($2, $1); }
 	 ;
 	 
-exprList : '(' expr				{ $$ = rename(adopt1($1, $2), "call"); }
+exprList : '(' expr				{ $$ = rename(adopt1($1, $2), "call", TOK_CALL); }
 	     | exprList ',' expr	{ free_ast($2); $$ = adopt1($1, $3); }
-	     | '('					{ $$ = rename($1, "call"); }
+	     | '('					{ $$ = rename($1, "call", TOK_CALL); }
 	     ;
 	 
 variable : TOK_IDENT			{ $$ = $1; }

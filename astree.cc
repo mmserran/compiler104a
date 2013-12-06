@@ -47,16 +47,18 @@ astree* adopt3 (astree* root, astree* one, astree* two, astree* three) {
    return root;
 }
 
-astree* rename (astree* root, const char* name) {
+astree* rename (astree* root, const char* name, int symbol) {
    root->nonterminal = name;
    root->terminal = false;
+   if (symbol!=-1)
+	   root->symbol = symbol;
    return root;
 }
 
 astree* parent (const char* name, astree* child) {
 	astree* parent = new_astree(0, 0, 0, 0, ".");
 	if (name)
-		return rename(adopt1(parent, child), name);
+		return rename(adopt1(parent, child), name, -1);
 	else
 		return adopt1(parent, child);
 }

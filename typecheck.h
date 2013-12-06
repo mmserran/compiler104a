@@ -8,8 +8,8 @@
 using namespace std;
 
 
-void ast_dfspost_traverse (FILE* outfile, SymbolTable symtable, astree* root);
+void ast_traverse (FILE* outfile, SymbolTable symtable, astree* root);
 
-static void dfs_rec (FILE* outfile, astree* root, int depth);
+void dfs_rec (FILE* outfile, astree* root, int depth);
 
 #endif
