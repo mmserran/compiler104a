@@ -22,6 +22,8 @@ using namespace std;
 #include "auxlib.h"
 #include "lyutils.h"
 #include "stringset.h"
+#include "symtable.h"
+#include "typecheck.h"
 
 //Initialize constants and variables
 const string cpp_name = "/usr/bin/cpp";
@@ -121,6 +123,15 @@ int main (int argc, char** argv) {
     }
     /*************************************************************************/
     
+    /*** FIRST TREE TRAVERSAL ************************************************/
+    SymbolTable* global_symtable = new SymbolTable(NULL);
+    ast_traverse(stderr, global_symtable, yyparse_astree);
+    /*************************************************************************/
+
+
+    /*** SECOND TREE TRAVERSAL ***********************************************/
+    //ast_dfspost_traverse(stderr, global_symtable, yyparse_astree);
+    /*************************************************************************/
 
     //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
     //> Close all files handles and yyin

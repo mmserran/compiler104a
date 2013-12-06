@@ -1,5 +1,5 @@
 # Mark Anthony Serrano (mmserran@ucsc.edu)
-# Makefile for CS104A - asg2
+# Makefile for CS104A - asg4
 
 MKFILE    = Makefile
 DEPSFILE  = ${MKFILE}.deps
@@ -10,8 +10,8 @@ VALGRIND  = valgrind --leak-check=full --show-reachable=yes
 #
 # Definitions of list of files:
 #
-HSOURCES  = astree.h  lyutils.h  auxlib.h  stringset.h
-CSOURCES  = astree.cc lyutils.cc auxlib.cc stringset.cc main.cc
+HSOURCES  = astree.h  lyutils.h  auxlib.h  stringset.h symtable.h typecheck.h
+CSOURCES  = astree.cc lyutils.cc auxlib.cc stringset.cc main.cc symtable.cc typecheck.cc
 LSOURCES  = scanner.l
 YSOURCES  = parser.y
 ETCSRC    = README ${MKFILE} ${DEPSFILE}
@@ -31,7 +31,7 @@ ALLSRC    = ${ETCSRC} ${YSOURCES} ${LSOURCES} ${HSOURCES} ${CSOURCES}
 TESTINS   = ${wildcard test?.in}
 LISTSRC   = ${ALLSRC} ${HYGEN}
 CLASS     = cmps104a-wm.f13
-PROJECT   = asg2
+PROJECT   = asg4
 
 #
 # Definitions of the compiler and compilation options:
