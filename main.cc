@@ -114,18 +114,20 @@ int main (int argc, char** argv) {
         errprintf ("%:parse failed (%d)\n", parsecode);
     }else {
         DEBUGSTMT ('a', dump_astree (stderr, yyparse_astree); );
-
-        //Write stringset data to .str file
-        dump_stringset( strout );
-
-        //Write formatted AST data to .ast file
-        dump_astree (astout, yyparse_astree);
     }
+
+
+    //Write stringset data to .str file
+    dump_stringset( strout );
+
+    //Write formatted AST data to .ast file
+    dump_astree(astout, yyparse_astree);
     /*************************************************************************/
     
     /*** FIRST TREE TRAVERSAL ************************************************/
     SymbolTable* global_symtable = new SymbolTable(NULL);
     ast_traverse(stderr, global_symtable, yyparse_astree);
+
     /*************************************************************************/
 
 
