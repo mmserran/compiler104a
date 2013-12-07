@@ -121,7 +121,7 @@ int main (int argc, char** argv) {
     dump_stringset( strout );
 
     //Write formatted AST data to .ast file
-    dump_astree(astout, yyparse_astree);
+    dump_astree(stderr, yyparse_astree);
     /*************************************************************************/
     
     /*** SYMBOL TABLE CONSTRUCTION PASS **************************************/

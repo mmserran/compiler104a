@@ -40,15 +40,18 @@ void dfs_rec (FILE* outfile, SymbolTable currentSymTable, astree* node, int dept
 
 	   case TOK_VARDECL:
 
-		   type = ignore_rec(node->children[0]);
+		   name = node->children[0]->lexinfo;
 
 		   fprintf (outfile, "%*s ", scope * 3, "");
-		   fprintf (outfile, "type: %s\n", type->c_str());
+		   fprintf (outfile, "name: %s\n", name->c_str());
 
 		   for (size_t child = 0; child < node->children.size(); ++child) {
 			   dfs_rec(outfile, currentSymTable.enterBlock(), node->children[child], depth + 1);
 		   }
 		   break;
+
+
+
 	   /*
 
 
@@ -96,7 +99,7 @@ void dfs_rec (FILE* outfile, SymbolTable currentSymTable, astree* node, int dept
 		   break;
 	   */
 	   default:
-
+		   //fprintf(outfile, "%s (%s)", node->symbol);
 		   for (size_t child = 0; child < node->children.size(); ++child) {
 			   dfs_rec(outfile, currentSymTable, node->children[child], depth + 1);
 		   }
