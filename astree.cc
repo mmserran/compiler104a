@@ -24,7 +24,6 @@ astree* new_astree (int symbol, int filenr, int linenr, int offset,
            get_yytname (tree->symbol), tree->lexinfo->c_str());
    return tree;
 }
-
 
 astree* adopt1 (astree* root, astree* child) {
    root->children.push_back (child);
@@ -58,7 +57,7 @@ static void dump_node (FILE* outfile, astree* node) {
    if (node->terminal)
 	   fprintf (outfile, "%s (%s)\n", get_yytname(node->symbol), node->lexinfo->c_str());
    else
-	   fprintf (outfile, "%s\n", node->lexinfo->c_str());
+	   fprintf (outfile, "%s (%s)\n", node->lexinfo->c_str(), get_yytname(node->symbol));
 }
 
 static void dump_astree_rec (FILE* outfile, astree* root, int depth) {

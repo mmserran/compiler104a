@@ -25,13 +25,9 @@ void dfs_rec (FILE* outfile, SymbolTable currentSymTable, astree* node, int dept
 
    //do something with current node
    switch (node->symbol) {
+   	   case ROOT:
 
-
-
-	   /*
-
-
-   	   case TOK_BLOCK:
+	   case TOK_BLOCK:
 		   block_count++;
 		   scope++;
 
@@ -47,12 +43,18 @@ void dfs_rec (FILE* outfile, SymbolTable currentSymTable, astree* node, int dept
 		   type = ignore_rec(node->children[0]);
 
 		   fprintf (outfile, "%*s ", scope * 3, "");
-		   fprintf (outfile, "name: %s\n", type->c_str());
+		   fprintf (outfile, "type: %s\n", type->c_str());
 
 		   for (size_t child = 0; child < node->children.size(); ++child) {
 			   dfs_rec(outfile, currentSymTable.enterBlock(), node->children[child], depth + 1);
 		   }
 		   break;
+	   /*
+
+
+
+
+
 
 
 	   case TOK_STRUCT:
@@ -96,7 +98,7 @@ void dfs_rec (FILE* outfile, SymbolTable currentSymTable, astree* node, int dept
 	   default:
 
 		   for (size_t child = 0; child < node->children.size(); ++child) {
-			   dfs_rec(outfile, currentSymTable.enterBlock(), node->children[child], depth + 1);
+			   dfs_rec(outfile, currentSymTable, node->children[child], depth + 1);
 		   }
    }
    return;

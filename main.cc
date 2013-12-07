@@ -117,12 +117,11 @@ int main (int argc, char** argv) {
         DEBUGSTMT ('a', dump_astree (stderr, yyparse_astree); );
     }
 
-
     //Write stringset data to .str file
     dump_stringset( strout );
 
     //Write formatted AST data to .ast file
-    dump_astree(stderr, yyparse_astree);
+    dump_astree(astout, yyparse_astree);
     /*************************************************************************/
     
     /*** SYMBOL TABLE CONSTRUCTION PASS **************************************/
