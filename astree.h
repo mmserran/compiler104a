@@ -24,8 +24,6 @@ astree* new_astree (int symbol, int filenr, int linenr, int offset,
 astree* adopt1 (astree* root, astree* child);
 astree* adopt2 (astree* root, astree* left, astree* right);
 astree* adopt3 (astree* root, astree* one, astree* two, astree* three);
-astree* rename (astree* root, const char* name, int symbol) ;
-astree* parent (const char* name, astree* child) ;
 astree* adopt1sym (astree* root, astree* child, int symbol);
 void dump_astree (FILE* outfile, astree* root);
 void yyprint (FILE* outfile, unsigned short toknum, astree* yyvaluep);

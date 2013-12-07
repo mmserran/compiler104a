@@ -27,6 +27,10 @@ void dfs_rec (FILE* outfile, SymbolTable currentSymTable, astree* node, int dept
    switch (node->symbol) {
 
 
+
+	   /*
+
+
    	   case TOK_BLOCK:
 		   block_count++;
 		   scope++;
@@ -49,11 +53,6 @@ void dfs_rec (FILE* outfile, SymbolTable currentSymTable, astree* node, int dept
 			   dfs_rec(outfile, currentSymTable.enterBlock(), node->children[child], depth + 1);
 		   }
 		   break;
-
-
-
-	   /*
-
 
 
 	   case TOK_STRUCT:
