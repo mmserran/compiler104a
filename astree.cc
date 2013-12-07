@@ -75,8 +75,6 @@ static void dump_node (FILE* outfile, astree* node) {
 	   fprintf (outfile, "%s (%s)\n", get_yytname(node->symbol), node->lexinfo->c_str());
    else
 	   fprintf (outfile, "%s\n", node->lexinfo->c_str());
-
-   //fprintf (outfile, "]}");
 }
 
 static void dump_astree_rec (FILE* outfile, astree* root, int depth) {

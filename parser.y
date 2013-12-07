@@ -27,7 +27,7 @@
 %token	TOK_IDENT TOK_INTCON TOK_CHARCON TOK_STRINGCON
 
 %token	TOK_NEWARRAY TOK_TYPEID TOK_FIELD
-%token	TOK_ORD TOK_CHR ROOT
+%token	TOK_ORD TOK_CHR ROOT TOK_NOT
 
 %right	TOK_IF TOK_ELSE
 %right	'='
@@ -57,11 +57,15 @@ structdef : TOK_STRUCT TOK_IDENT '{' decls '}' 		{ free_ast2($3, $5);
 	  
 decls : decls decl';'	{ free_ast($3); 
 						  $$ = adopt1($1, $2); }
-	  | decl ';'		{ free_ast($2); 
+	  | decl ';'		{ free_ast($2);
 	  					  $$ = $1; }
 	  ;
 	  
-type : basetype TOK_ARRAY { $$ = adopt1($1, $2); $2->symbol = TOK_ARRAY; $2->terminal = true; }
+type : basetype TOK_ARRAY { astree* temp = new_astree(0, 0, 0, 0, "type");
+	 					  	temp->symbol = TOK_TYPE;
+							$2->symbol = TOK_ARRAY; 
+							$2->terminal = true;
+							$$ = adopt1(temp, adopt1($1, $2));  }
 	 | basetype			  { astree* temp = new_astree(0, 0, 0, 0, "type");
 	 						temp->symbol = TOK_TYPE;
 	 						$$ = adopt1(temp, $1); }
@@ -152,7 +156,7 @@ statement : block  		{ $$ = $1; }
 		  ;
 
 vardecl : type TOK_IDENT '=' expr ';'	{ free_ast2($3, $5);
-										  $2->symbol = TOK_IDENT;
+										  $2->symbol = TOK_FIELD;
 										  $2->terminal = true;
 										  astree* temp = new_astree(0, 0, 0, 0, "vardecl");
 										  temp->symbol = TOK_VARDECL;
@@ -160,10 +164,7 @@ vardecl : type TOK_IDENT '=' expr ';'	{ free_ast2($3, $5);
 		;
 		
 while : TOK_WHILE '(' expr ')' statement	{ free_ast2($2, $4);
-											  free_ast($1);
-											  astree* temp = new_astree(0, 0, 0, 0, "while");
-											  temp->symbol = TOK_WHILE;
-											  $$ = adopt2(temp, $3, $5);  }
+											  $$ = adopt2($1, $3, $5);  }
 	  ;
 	  
 ifelse : TOK_IF '(' expr ')' statement %prec TOK_ELSE		{ free_ast2($2, $4); adopt2($1, $3, $5); }
@@ -226,6 +227,10 @@ expr : expr '+' expr			{ $2->symbol = '+';
 								  $2->terminal = true;
 								  astree* temp = new_astree(0, 0, 0, 0, "unop");
 								  $$ = adopt2(temp, $1, $2); ; }
+	 | '!' expr %prec TOK_NOT	{ $2->symbol = TOK_NOT;
+								  $2->terminal = true;
+								  astree* temp = new_astree(0, 0, 0, 0, "unop");
+								  $$ = adopt2(temp, $1, $2); }
 	 | TOK_ORD expr				{ $1->symbol = TOK_ORD;
 								  $1->terminal = true;
 								  astree* temp = new_astree(0, 0, 0, 0, "unop");
@@ -243,35 +248,34 @@ expr : expr '+' expr			{ $2->symbol = '+';
 	 ;
 			
 allocator : TOK_NEW basetype '(' ')' 		{ free_ast2($3, $4); 
-											  $1->symbol = TOK_TYPEID; 
 											  astree* temp = new_astree(0, 0, 0, 0, "allocator");
 											  $$ = adopt2(temp, $1, $2); }
-		  | TOK_NEW basetype '(' expr ')' 	{ free_ast2($3, $5); 
-											  $1->symbol = TOK_FIELD; 
+		  | TOK_NEW basetype '(' expr ')' 	{ free_ast2($3, $5);
 											  astree* temp = new_astree(0, 0, 0, 0, "allocator");
 											  $$ = adopt3(temp, $1, $2, $4);  }
 		  | TOK_NEW basetype '[' expr ']'	{ free_ast2($3, $5); 
-											  $1->symbol = TOK_NEWARRAY; 
 											  astree* temp = new_astree(0, 0, 0, 0, "allocator");
+											  astree* array = new_astree(0, 0, 0, 0, "[]");
+											  array->terminal = true;
+											  array->symbol = TOK_NEWARRAY;
+											  $2 = adopt1($2, array);
 											  $$ = adopt3(temp, $1, $2, $4); }
 		  ;
 		 
-call : TOK_IDENT exprList ')'	{ free_ast($3);
-								  astree* temp = new_astree(0, 0, 0, 0, "call"); 
-	 					  	  	  temp->symbol = TOK_CALL;
-								  $1->symbol = TOK_IDENT;
-								  $1->terminal = true;
-								  $$ = adopt2(temp, $1, $2);}
+call : TOK_IDENT '(' args ')'		{ free_ast2($2, $4);
+									  astree* temp = new_astree(0, 0, 0, 0, "call"); 
+		 					  	  	  temp->symbol = TOK_CALL;
+									  $1->symbol = TOK_IDENT;
+									  $1->terminal = true;
+									  $$ = adopt2(temp, $1, $3);}
 	 ;
 	 
-exprList : '(' expr				{ free_ast($1);
-								  $$ = $2; }
-	     | exprList ',' expr	{ free_ast($2);
-	     						  $$ = adopt1($1, $3); }
-	     | '('					{ free_ast($1);
-								  astree* temp = new_astree(0, 0, 0, 0, "");
-								  $$ = temp;  }
-	     ;
+args : expr					{ astree* temp = new_astree(0, 0, 0, 0, "args");
+							  $$ = adopt1(temp, $1); }
+	 | args ',' expr		{ free_ast($2);
+	     					  $$ = adopt1($1, $3); }
+	 |
+	 ;
 
 variable : TOK_IDENT			{ $1->terminal = true;
 								  $1->symbol = TOK_IDENT;

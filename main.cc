@@ -106,6 +106,7 @@ int main (int argc, char** argv) {
     tokout = fopen( outFilename, "w" );
     outFilename = (string(basename)+".ast").c_str();
     astout = fopen( outFilename, "w" );
+    //<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
     
     /*** MAGIC **************************************************************/
@@ -121,17 +122,16 @@ int main (int argc, char** argv) {
     dump_stringset( strout );
 
     //Write formatted AST data to .ast file
-    dump_astree(astout, yyparse_astree);
+    dump_astree(stderr, yyparse_astree);
     /*************************************************************************/
     
-    /*** FIRST TREE TRAVERSAL ************************************************/
+    /*** SYMBOL TABLE CONSTRUCTION PASS **************************************/
     SymbolTable* global_symtable = new SymbolTable(NULL);
     ast_traverse(stderr, global_symtable, yyparse_astree);
 
     /*************************************************************************/
 
-
-    /*** SECOND TREE TRAVERSAL ***********************************************/
+    /*** TYPE CHECKING PASS **************************************************/
     //ast_dfspost_traverse(stderr, global_symtable, yyparse_astree);
     /*************************************************************************/
 
@@ -145,6 +145,7 @@ int main (int argc, char** argv) {
 
     yyin_cpp_pclose();
     yylex_destroy();
+    //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
     
    return get_exitstatus();
 }
