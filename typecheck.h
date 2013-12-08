@@ -11,8 +11,8 @@ using namespace std;
 
 void ast_traverse (FILE* outfile, SymbolTable symtable, astree* root);
 
-void dfs_rec (FILE* outfile, SymbolTable currentSymTable, astree* root, int depth);
+void dfs_rec (FILE* outfile, SymbolTable currentSymTable, astree* root);
 
-const string* ignore_rec(astree* node);
+void rec_over_children(FILE* outfile, SymbolTable symtable, astree* node);
 
 #endif

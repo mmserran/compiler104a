@@ -16,7 +16,7 @@
 %error-verbose
 %token-table
 
-%token TOK_TYPEID TOK_FIELD TOK_DECLID TOK_NEWARRAY 
+%token TOK_TYPEID TOK_FIELD TOK_DECLID TOK_NEWARRAY TOK_FUNCTION TOK_TYPE
 %token TOK_VOID TOK_BOOL TOK_CHAR TOK_INT TOK_STRING ROOT TOK_BLOCK
 %token TOK_IF TOK_ELSE TOK_IFELSE TOK_WHILE TOK_RETURN TOK_STRUCT TOK_VARDECL
 %token TOK_FALSE TOK_TRUE TOK_NULL TOK_NEW TOK_ARRAY
@@ -71,10 +71,12 @@ decls : decls decl';'	{ free_ast($3);
 	  
 type : basetype TOK_ARRAY { free_ast($2);
 							astree* temp = new_astree(0, 0, 0, 0, "type");
+							temp->symbol = TOK_TYPE;
 							astree* array = new_astree(0, 0, 0, 0, "array");
 							array->symbol = TOK_ARRAY;
 							$$ = adopt2(temp, array, $1);  }
 	 | basetype			  { astree* temp = new_astree(0, 0, 0, 0, "type");
+							temp->symbol = TOK_TYPE;
 	 						$$ = adopt1(temp, $1); }
 	 ;
      
@@ -106,14 +108,16 @@ basetype : TOK_VOID		{ astree* temp = new_astree(0, 0, 0, 0, "basetype");
 
 function : type TOK_IDENT '(' ')' block		{ free_ast2($3, $4);
 									  		  astree* temp = new_astree(0, 0, 0, 0, "function");
+									  		  temp->symbol = TOK_FUNCTION;
 											  $2->symbol = TOK_TYPEID;
 											  $2->terminal = true;
-									 		  $$ = adopt3(temp, $1, $2, $5); }
+									 		  $$ = adopt3(temp, $2, $1, $5); }
 		 | type TOK_IDENT params ')' block	{ free_ast($4);
 				 							  astree* temp = new_astree(0, 0, 0, 0, "function");
+				 							  temp->symbol = TOK_FUNCTION;
 											  $2->symbol = TOK_TYPEID;
 											  $2->terminal = true;
-				 							  temp = adopt2(temp, $1, $2);
+				 							  temp = adopt2(temp, $2, $1);
 				 							  $$ = adopt2(temp, $3, $5); }
 		 ;
 		 
