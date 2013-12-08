@@ -8,12 +8,11 @@
 
 using namespace std;
 
-
 void buildSymbolTable (FILE* outfile, astree* root);
 
 void build_rec (FILE* outfile, SymbolTable* currentSymTable, astree* root);
 
-void rec_over_children(FILE* outfile, SymbolTable* symtable, astree* node);
+void rec_childrenBuild(FILE* outfile, SymbolTable* symtable, astree* node);
 
 const string* getType(astree* type);
 

@@ -7,6 +7,7 @@ using namespace std;
 #include "symtable.h"
 #include "astree.h"
 
+// Declare variables
 int block_count = 0;
 int scope = 0;
 
@@ -40,7 +41,7 @@ void build_rec (FILE* outfile, SymbolTable* currentSymTable, astree* node) {
    switch (node->symbol) {
 	   case TOK_BLOCK:
 
-		   rec_over_children(outfile, currentSymTable->enterBlock(), node);
+		   rec_childrenBuild(outfile, currentSymTable->enterBlock(), node);
 		   break;
 
 	   case TOK_FUNCTION:
@@ -77,7 +78,7 @@ void build_rec (FILE* outfile, SymbolTable* currentSymTable, astree* node) {
 
 		   // Decrement block number
 		   currentSymTable->N--;
-		   rec_over_children(outfile, currentSymTable, node);
+		   rec_childrenBuild(outfile, currentSymTable, node);
 		   break;
 
 	   case TOK_VARDECL:
@@ -90,11 +91,11 @@ void build_rec (FILE* outfile, SymbolTable* currentSymTable, astree* node) {
 		   typeStr = getType(node->children[1]);
 
 		   currentSymTable->addSymbol(*nameStr, *typeStr, coords.str().c_str());
-		   rec_over_children(outfile, currentSymTable, node);
+		   rec_childrenBuild(outfile, currentSymTable, node);
 		   break;
 
 	   default:
-		   rec_over_children(outfile, currentSymTable, node);
+		   rec_childrenBuild(outfile, currentSymTable, node);
    }
    return;
 }
@@ -112,7 +113,7 @@ const string* getType(astree* type) {
 	   }
 }
 
-void rec_over_children(FILE* outfile, SymbolTable* currentSymTable, astree* node) {
+void rec_childrenBuild(FILE* outfile, SymbolTable* currentSymTable, astree* node) {
 	for (size_t child = 0; child < node->children.size(); ++child) {
 		build_rec(outfile, currentSymTable, node->children[child]);
 	}
