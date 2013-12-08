@@ -23,8 +23,8 @@ using namespace std;
 #include "lyutils.h"
 #include "stringset.h"
 #include "symtable.h"
-#include "typecheck.h"
 #include "buildtable.h"
+#include "typecheck.h"
 
 //Initialize constants and variables
 const string cpp_name = "/usr/bin/cpp";
@@ -121,7 +121,7 @@ int main (int argc, char** argv) {
     }
 
     //Write stringset data to .str file
-    dump_stringset( strout );
+    dump_stringset(strout);
 
     //Write formatted AST data to .ast file
     dump_astree(astout, yyparse_astree);
@@ -129,9 +129,8 @@ int main (int argc, char** argv) {
     /*************************************************************************/
     
     /*** SYMBOL TABLE CONSTRUCTION PASS **************************************/
-    buildSymbolTable(stderr, yyparse_astree);
-
     //Write symbol tables to .sym file
+    buildSymbolTable(symout, yyparse_astree);
     /*************************************************************************/
 
     /*** TYPE CHECKING PASS **************************************************/
