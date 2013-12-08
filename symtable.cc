@@ -30,9 +30,9 @@ SymbolTable* SymbolTable::enterBlock() {
 //
 // Example: To enter the function "void add(int a, int b)",
 //          call "currentSymbolTable->enterFunction("add", "void(int,int)");
-SymbolTable* SymbolTable::enterFunction(string name, string signature) {
+SymbolTable* SymbolTable::enterFunction(string name, string signature, string coords) {
   // Add a new symbol using the signature as type
-  this->addSymbol(name, signature);
+  this->addSymbol(name, signature, coords);
   // Create the child symbol table
   SymbolTable* child = new SymbolTable(this);
   // Store the symbol table under the name of the function
@@ -46,9 +46,10 @@ SymbolTable* SymbolTable::enterFunction(string name, string signature) {
 //
 // Example: To add the variable declaration "int i = 23;"
 //          use "currentSymbolTable->addSymbol("i", "int");
-void SymbolTable::addSymbol(string name, string type) {
+void SymbolTable::addSymbol(string name, string type, string coords) {
   // Use the variable name as key for the identifier mapping
   this->mapping[name] = type;
+  this->location[name] = coords;
 }
 
 // Dumps the content of the symbol table and all its inner scopes
@@ -64,9 +65,11 @@ void SymbolTable::dump(FILE* symfile, int depth) {
     const char* name = it->first.c_str();
     // The value of the mapping entry is the type of the symbol
     const char* type = it->second.c_str();
+
+    string location = this->location[it->first];
     // Print the symbol as "name {blocknumber} type"
     // indented by 3 spaces for each level
-    fprintf(symfile, "%*s%s {%d} %s\n", 3*depth, "", name, this->number, type);
+    fprintf(symfile, "%*s%s %s {%d} %s\n", 3*depth, "", name, location.c_str(), this->number, type);
     // If the symbol we just printed is actually a function
     // then we can find the symbol table of the function by the name
     if (this->subscopes.count(name) > 0) {

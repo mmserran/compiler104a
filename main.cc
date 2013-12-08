@@ -24,6 +24,7 @@ using namespace std;
 #include "stringset.h"
 #include "symtable.h"
 #include "typecheck.h"
+#include "buildtable.h"
 
 //Initialize constants and variables
 const string cpp_name = "/usr/bin/cpp";
@@ -31,7 +32,7 @@ const size_t LINESIZE = 1024;
 string cppFlags;
 string yyin_cpp_command;
 
-FILE *tokout, *strout, *astout;
+FILE *tokout, *strout, *astout, *symout;
 const char *outFilename;
 
 //Open a pipe from the C preprocessor and assign to yyin
@@ -106,6 +107,8 @@ int main (int argc, char** argv) {
     tokout = fopen( outFilename, "w" );
     outFilename = (string(basename)+".ast").c_str();
     astout = fopen( outFilename, "w" );
+    outFilename = (string(basename)+".sym").c_str();
+    symout = fopen( outFilename, "w" );
     //<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
     
@@ -122,12 +125,13 @@ int main (int argc, char** argv) {
 
     //Write formatted AST data to .ast file
     dump_astree(astout, yyparse_astree);
+
     /*************************************************************************/
     
     /*** SYMBOL TABLE CONSTRUCTION PASS **************************************/
-    SymbolTable* global_symtable = new SymbolTable(NULL);
-    ast_traverse(stderr, global_symtable, yyparse_astree);
+    buildSymbolTable(stderr, yyparse_astree);
 
+    //Write symbol tables to .sym file
     /*************************************************************************/
 
     /*** TYPE CHECKING PASS **************************************************/
@@ -139,6 +143,7 @@ int main (int argc, char** argv) {
     fclose( tokout );
     fclose( strout );
     fclose( astout );
+    fclose( symout );
 
     free_ast (yyparse_astree);
 
