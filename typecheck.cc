@@ -29,6 +29,7 @@ string typecheck_rec (FILE* outfile, SymbolTable* symtable, SymbolTable* typetab
 	   string left;
 	   string right;
 	   string type;
+	   string base;
 	   astree* op;
 	   if (node == NULL) return "invalid node";
 
@@ -57,22 +58,6 @@ string typecheck_rec (FILE* outfile, SymbolTable* symtable, SymbolTable* typetab
 			   temp = temp + ")";
 			   typeStr = &temp;
 
-			   typetable->enterBlock();
-			   vector<string>structTypes;
-			   //structTypes = parseSignature(*typeStr);
-
-			   needDelim = false;
-			   for (size_t child = 0; child < node->children[1]->children.size(); ++child) {
-				   typeStr = getType(node->children[1]->children[child]->children[1]);
-
-				   if (needDelim) {
-					   fprintf (outfile, "hello");
-				   }
-
-				   needDelim = true;
-			   }
-
-			   fprintf(outfile, "%s\n", typeStr->c_str());
 			   return typeStr->c_str();
 	   	   }
 
@@ -88,7 +73,7 @@ string typecheck_rec (FILE* outfile, SymbolTable* symtable, SymbolTable* typetab
    	   		   	   case '-':
    	   		   	   case TOK_ORD:
    	   		   		   if (type=="int")
-   	   		   			   return "int";
+   	   		   			   return "char";
    	   		   		   break;
    	   		   	   case '!':
    	   		   		   if (type=="bool")
@@ -96,7 +81,7 @@ string typecheck_rec (FILE* outfile, SymbolTable* symtable, SymbolTable* typetab
    	   		   		   break;
    	   		   	   case TOK_CHR:
    	   		   		   if (type=="char")
-   	   		   			   return "char";
+   	   		   			   return "int";
    	   		   		   break;
    	   		   }
    	   		   fprintf(outfile, "error, @unop \'%s\': invalid type \'%s\'\n",
@@ -130,18 +115,18 @@ string typecheck_rec (FILE* outfile, SymbolTable* symtable, SymbolTable* typetab
    	   		   	   case TOK_EQ:
    	   		   	   case TOK_NE:
    	   		   		   if (left==right || left=="null" || right=="null")
-   	   	   		   		   return "bool"; "";
+   	   	   		   		   return "bool";
    	   		   		   break;
    	   		   	   case '=':
    	   		   		   if (left==right || right=="null")
-   	   	   		   		   return "bool";
+   	   	   		   		   return left;
    	   		   		   break;
    	   		   }
    	   	   	   fprintf(outfile, "error, @binop: incompatible types, \'%s\'  \'%s\'\n",
    	   	   			   left.c_str(), right.c_str());
    	   	   	   return "";
    	   	   }
-
+   	   	   // Constants
    	   	   case TOK_CONSTANT: {
    	   		   switch (node->children[0]->symbol) {
 				   case TOK_INTCON:
@@ -156,7 +141,7 @@ string typecheck_rec (FILE* outfile, SymbolTable* symtable, SymbolTable* typetab
 				   case TOK_NULL:
 					   return "null";
 				   default :
-					   fprintf(outfile, "warning: invalid constant");
+					   fprintf(outfile, "error: invalid constant");
 					   return "";
    	   		   }
    	   	   }
@@ -165,90 +150,10 @@ string typecheck_rec (FILE* outfile, SymbolTable* symtable, SymbolTable* typetab
 			   return "";
 	   }
 }
-/*
-
-
-	   	   // Structdefs
-
-	   	   case TOK_STRUCT: {
-
-			   coords.str("");
-			   coords << '(' << node->filenr << '.' << node->linenr << '.' << node->offset << ')';
-
-	   		   fprintf(outfile, "structdef");
-			   // Get name
-			   nameStr = node->children[0]->lexinfo;
-			   // Get type
-			   typeStr = getType(node->children[1]);
-			   // Get params
-			   temp = *typeStr + "(";
-			   needDelim = false;
-			   for (size_t child = 0; child < node->children[2]->children.size(); ++child) {
-				   typeStr = getType(node->children[2]->children[child]->children[1]);
-
-				   if (needDelim) {
-					   temp = temp + ", ";
-				   }
-
-				   temp = temp + *typeStr;
-				   needDelim = true;
-			   }
-			   temp = temp + ")";
-			   typeStr = &temp;
-
-			   for (size_t child = 0; child < node->children[2]->children.size(); ++child) {
-				   typeTemp = *getType(node->children[2]->children[child]->children[1]);
-				   nameTemp = *node->children[2]->children[child]->children[0]->lexinfo;
-
-				   // >Enter argument into Function's child symbol table
-				   symtable->enterFunction(*nameStr, *typeStr, coords.str().c_str())->addSymbol(nameTemp, typeTemp, coords.str().c_str());
-			   }
-
-			   // Decrement block number
-			   symtable->N--;
-			   rec_childrenBuild(outfile, symtable, node);
-
-			   break;
-	   	   }
-
-   	   	   case TOK_ALLOCATOR: {
-
-   	   		   op = node->children[1];
-   	   		   switch (op->symbol) {
-   	   		   	   case TOK_BASETYPE:
-   	   		   		   base = typecheck_rec(outfile, symtable, node->children[1]);
-   	   		   	   case TOK_NEWARRAY:
-   	   		   		   base = string(*node->children[2]->children[0]->lexinfo+"[]");
-   	   		   }
-
-   	   		   lookup = symtable->lookup(base);
-   	   		   if ( lookup.compare("") ) {
-   	   			   fprintf(outfile, "fuck");
-   	   		   	   return "";
-   	   		   }
-   	   		   else
-   	   			   return base;
-   	   	   }
-*/
-
-   	   		   //case TOK_NEW
-   	   		   	   //TOK_TYPEID '(' ')'
-   	   		   	   //TOK_STRING '(' int ')'
-
-   	   		   //case TOK_IDENT '(' compatible ')'
-   	   		   //case TOK_IDENT
-   	   		   //case TOK_ARRAY:
-   	   		   //case 'string' '[' int ']'
-   	   		   //case TOK_TYPEID:
 
 void rec_childrenType(FILE* outfile, SymbolTable* symtable, SymbolTable* typetable, astree* node) {
 	for (size_t child = 0; child < node->children.size(); ++child) {
 		typecheck_rec(outfile, symtable, typetable, node->children[child]);
 	}
 	return;
-}
-
-string arithmeticOps(FILE* outfile, SymbolTable* symtable, string compare_L, string compare_R) {
-
-	return "int";
 }
