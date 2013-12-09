@@ -11,31 +11,31 @@ using namespace std;
 int block_count = 0;
 int scope = 0;
 
-SymbolTable* global_symtable;
+string temp1;
 
-const string* nameStr;
-const string* typeStr;
-string typeTemp;
-string nameTemp;
-string temp;
-stringstream coords;
-bool needDelim;
+SymbolTable* global_symTable;
 
-astree* type;
-astree* basetype;
+SymbolTable* buildSymbolTable (FILE* outfile, astree* node) {
 
-void buildSymbolTable (FILE* outfile, astree* node) {
+	global_symTable = new SymbolTable(NULL);
 
-	global_symtable = new SymbolTable(NULL);
+	build_rec (outfile, global_symTable, node);
 
-	build_rec (outfile, global_symtable, node);
-
-	global_symtable->dump(outfile, 0);
+	global_symTable->dump(outfile, 0);
 	fflush (NULL);
+
+	return global_symTable;
 }
 
 void build_rec (FILE* outfile, SymbolTable* currentSymTable, astree* node) {
-   if (node == NULL) return;
+	const string* nameStr;
+	const string* typeStr;
+	string typeTemp;
+	string nameTemp;
+	string temp;
+	stringstream coords;
+
+	if (node == NULL) return;
 
    //do something with current node
    switch (node->symbol) {
@@ -54,6 +54,8 @@ void build_rec (FILE* outfile, SymbolTable* currentSymTable, astree* node) {
 		   typeStr = getType(node->children[1]);
 		   // Get params
 		   temp = *typeStr + "(";
+
+		   bool needDelim;
 		   needDelim = false;
 		   for (size_t child = 0; child < node->children[2]->children.size(); ++child) {
 			   typeStr = getType(node->children[2]->children[child]->children[1]);
@@ -101,12 +103,14 @@ void build_rec (FILE* outfile, SymbolTable* currentSymTable, astree* node) {
 }
 
 const string* getType(astree* type) {
+		astree* basetype;
+
 	   // Get type
 	   basetype = type->children[0];
 	   if (basetype->symbol==TOK_ARRAY) {
-		   temp = *type->children[1]->children[0]->lexinfo;
-		   temp = temp + "[]";
-		   return &temp;
+		   temp1 = *type->children[1]->children[0]->lexinfo;
+		   temp1 = temp1 + "[]";
+		   return &temp1;
 	   }
 	   else {
 		   return type->children[0]->children[0]->lexinfo;

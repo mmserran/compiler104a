@@ -16,6 +16,7 @@
 %error-verbose
 %token-table
 
+%token TOK_BINOP TOK_UNOP TOK_ALLOCATOR TOK_BASETYPE TOK_CALL TOK_VAR TOK_CONSTANT
 %token TOK_TYPEID TOK_FIELD TOK_DECLID TOK_NEWARRAY TOK_FUNCTION TOK_TYPE
 %token TOK_VOID TOK_BOOL TOK_CHAR TOK_INT TOK_STRING ROOT TOK_BLOCK
 %token TOK_IF TOK_ELSE TOK_IFELSE TOK_WHILE TOK_RETURN TOK_STRUCT TOK_VARDECL
@@ -79,27 +80,27 @@ type : basetype TOK_ARRAY { free_ast($2);
 	 						$$ = adopt1(temp, $1); }
 	 ;
      
-basetype : TOK_VOID		{ astree* temp = new_astree(0, 0, 0, 0, "basetype");
+basetype : TOK_VOID		{ astree* temp = new_astree(TOK_BASETYPE, 0, 0, 0, "basetype");
 						  $1->symbol = TOK_VOID;
 						  $1->terminal = true;
 	 					  $$ = adopt1(temp, $1); } 
-		 | TOK_BOOL		{ astree* temp = new_astree(0, 0, 0, 0, "basetype");
+		 | TOK_BOOL		{ astree* temp = new_astree(TOK_BASETYPE, 0, 0, 0, "basetype");
 						  $1->symbol = TOK_BOOL;
 						  $1->terminal = true;
 	 					  $$ = adopt1(temp, $1); } 
-		 | TOK_CHAR		{ astree* temp = new_astree(0, 0, 0, 0, "basetype");
+		 | TOK_CHAR		{ astree* temp = new_astree(TOK_BASETYPE, 0, 0, 0, "basetype");
 						  $1->symbol = TOK_CHAR;
 						  $1->terminal = true;
 	 					  $$ = adopt1(temp, $1); } 
-		 | TOK_INT		{ astree* temp = new_astree(0, 0, 0, 0, "basetype");
+		 | TOK_INT		{ astree* temp = new_astree(TOK_BASETYPE, 0, 0, 0, "basetype");
 						  $1->symbol = TOK_INT;
 						  $1->terminal = true;
 	 					  $$ = adopt1(temp, $1); } 
-		 | TOK_STRING	{ astree* temp = new_astree(0, 0, 0, 0, "basetype");
+		 | TOK_STRING	{ astree* temp = new_astree(TOK_BASETYPE, 0, 0, 0, "basetype");
 						  $1->symbol = TOK_STRING;
 						  $1->terminal = true;
 	 					  $$ = adopt1(temp, $1); } 
-		 | TOK_IDENT	{ astree* temp = new_astree(0, 0, 0, 0, "basetype");
+		 | TOK_IDENT	{ astree* temp = new_astree(TOK_BASETYPE, 0, 0, 0, "basetype");
 						  $1->symbol = TOK_IDENT;
 						  $1->terminal = true;
 	 					  $$ = adopt1(temp, $1); } 
@@ -194,95 +195,95 @@ expr : binop					{ $$ = $1; }
 		
 binop : expr '+' expr			{ $2->symbol = '+';
 								  $2->terminal = true;
-								  astree* temp = new_astree(0, 0, 0, 0, "binop");
+								  astree* temp = new_astree(TOK_BINOP, 0, 0, 0, "binop");
 								  $$ = adopt3(temp, $1, $2, $3); }
 	 | expr '-' expr			{ $2->symbol = '-';
 								  $2->terminal = true;
-								  astree* temp = new_astree(0, 0, 0, 0, "binop");
+								  astree* temp = new_astree(TOK_BINOP, 0, 0, 0, "binop");
 								  $$ = adopt3(temp, $1, $2, $3); }
 	 | expr '/' expr			{ $2->symbol = '/';
 								  $2->terminal = true;
-								  astree* temp = new_astree(0, 0, 0, 0, "binop");
+								  astree* temp = new_astree(TOK_BINOP, 0, 0, 0, "binop");
 								  $$ = adopt3(temp, $1, $2, $3); }
 	 | expr '*' expr			{ $2->symbol = '*';
 								  $2->terminal = true;
-								  astree* temp = new_astree(0, 0, 0, 0, "binop");
+								  astree* temp = new_astree(TOK_BINOP, 0, 0, 0, "binop");
 								  $$ = adopt3(temp, $1, $2, $3); }
 	 | expr '=' expr			{ $2->symbol = '=';
 								  $2->terminal = true;
-								  astree* temp = new_astree(0, 0, 0, 0, "binop");
+								  astree* temp = new_astree(TOK_BINOP, 0, 0, 0, "binop");
 								  $$ = adopt3(temp, $1, $2, $3); }
 	 | expr TOK_EQ expr			{ $2->symbol = TOK_EQ;
 								  $2->terminal = true;
-								  astree* temp = new_astree(0, 0, 0, 0, "binop");
+								  astree* temp = new_astree(TOK_BINOP, 0, 0, 0, "binop");
 								  $$ = adopt3(temp, $1, $2, $3); }
 	 | expr TOK_NE expr			{ $2->symbol = TOK_NE;
 								  $2->terminal = true;
-								  astree* temp = new_astree(0, 0, 0, 0, "binop");
+								  astree* temp = new_astree(TOK_BINOP, 0, 0, 0, "binop");
 								  $$ = adopt3(temp, $1, $2, $3); }
 	 | expr TOK_LT expr			{ $2->symbol = TOK_LT;
 								  $2->terminal = true;
-								  astree* temp = new_astree(0, 0, 0, 0, "binop");
+								  astree* temp = new_astree(TOK_BINOP, 0, 0, 0, "binop");
 								  $$ = adopt3(temp, $1, $2, $3); }
 	 | expr TOK_GT expr			{ $2->symbol = TOK_GT;
 								  $2->terminal = true;
-								  astree* temp = new_astree(0, 0, 0, 0, "binop");
+								  astree* temp = new_astree(TOK_BINOP, 0, 0, 0, "binop");
 								  $$ = adopt3(temp, $1, $2, $3); }
 	 | expr TOK_LE expr			{ $2->symbol = TOK_LE;
 								  $2->terminal = true;
-								  astree* temp = new_astree(0, 0, 0, 0, "binop");
+								  astree* temp = new_astree(TOK_BINOP, 0, 0, 0, "binop");
 								  $$ = adopt3(temp, $1, $2, $3); }
 	 | expr TOK_GE expr			{ $2->symbol = TOK_GE;
 								  $2->terminal = true;
-								  astree* temp = new_astree(0, 0, 0, 0, "binop");
+								  astree* temp = new_astree(TOK_BINOP, 0, 0, 0, "binop");
 								  $$ = adopt3(temp, $1, $2, $3); }
 	 ;
 			
-unop : '+' expr %prec TOK_POS	{ $2->symbol = TOK_POS;
-								  $2->terminal = true;
-								  astree* temp = new_astree(0, 0, 0, 0, "unop");
+unop : '+' expr %prec TOK_POS	{ $1->symbol = TOK_POS;
+								  $1->terminal = true;
+								  astree* temp = new_astree(TOK_UNOP, 0, 0, 0, "unop");
 								  $$ = adopt2(temp, $1, $2); }
-	 | '-' expr %prec TOK_NEG	{ $2->symbol = TOK_NEG;
-								  $2->terminal = true;
-								  astree* temp = new_astree(0, 0, 0, 0, "unop");
+	 | '-' expr %prec TOK_NEG	{ $1->symbol = TOK_NEG;
+								  $1->terminal = true;
+								  astree* temp = new_astree(TOK_UNOP, 0, 0, 0, "unop");
 								  $$ = adopt2(temp, $1, $2); ; }
-	 | '!' expr					{ $2->symbol = '!';
-								  $2->terminal = true;
-								  astree* temp = new_astree(0, 0, 0, 0, "unop");
+	 | '!' expr					{ $1->symbol = '!';
+								  $1->terminal = true;
+								  astree* temp = new_astree(TOK_UNOP, 0, 0, 0, "unop");
 								  $$ = adopt2(temp, $1, $2); }
 	 | TOK_ORD expr				{ $1->symbol = TOK_ORD;
 								  $1->terminal = true;
-								  astree* temp = new_astree(0, 0, 0, 0, "unop");
+								  astree* temp = new_astree(TOK_UNOP, 0, 0, 0, "unop");
 								  $$ = adopt2(temp, $1, $2);  }
 	 | TOK_CHR expr				{ $1->symbol = TOK_CHR;
 								  $1->terminal = true;
-								  astree* temp = new_astree(0, 0, 0, 0, "unop");
+								  astree* temp = new_astree(TOK_UNOP, 0, 0, 0, "unop");
 								  $$ = adopt2(temp, $1, $2);   }
 	 ;
 			
 allocator : TOK_NEW basetype '(' ')' 		{ free_ast2($3, $4); 
-											  astree* temp = new_astree(0, 0, 0, 0, "allocator");
+											  astree* temp = new_astree(TOK_ALLOCATOR, 0, 0, 0, "allocator");
 											  $$ = adopt2(temp, $1, $2); }
 		  | TOK_NEW basetype '(' expr ')' 	{ free_ast2($3, $5);
-											  astree* temp = new_astree(0, 0, 0, 0, "allocator");
+											  astree* temp = new_astree(TOK_ALLOCATOR, 0, 0, 0, "allocator");
 											  $$ = adopt3(temp, $1, $2, $4);  }
 		  | TOK_NEW basetype '[' expr ']'	{ free_ast2($3, $5); 
-											  astree* temp = new_astree(0, 0, 0, 0, "allocator");
+											  astree* temp = new_astree(TOK_ALLOCATOR, 0, 0, 0, "allocator");
 											  astree* array = new_astree(0, 0, 0, 0, "array");
 											  array->symbol = TOK_NEWARRAY;
-											  temp = adopt1(temp, array);
-											  $$ = adopt3(temp, $1, $2, $4); }
+											  temp = adopt1(temp, $1);
+											  $$ = adopt3(temp, array, $2, $4); }
 		  ;
 		 
 call : TOK_IDENT '(' ')'		{ free_ast2($2, $3);
 								  $1->symbol = TOK_IDENT;
 								  $1->terminal = true;
-								  astree* temp = new_astree(0, 0, 0, 0, "call");
+								  astree* temp = new_astree(TOK_CALL, 0, 0, 0, "call");
 								  $$ = adopt1(temp, $1); }
 	 | TOK_IDENT args ')'		{ free_ast($3);
 								  $1->symbol = TOK_IDENT;
 								  $1->terminal = true;
-	 							  astree* temp = new_astree(0, 0, 0, 0, "call");
+	 							  astree* temp = new_astree(TOK_CALL, 0, 0, 0, "call");
 	 							  $$ = adopt2(temp, $1, $2); }
 	 ;
 	 
@@ -295,41 +296,41 @@ args : '(' expr					{ free_ast($1);
 
 variable : TOK_IDENT			{ $1->symbol = TOK_IDENT;
 								  $1->terminal = true;
-								  astree* temp = new_astree(0, 0, 0, 0, "variable");
+								  astree* temp = new_astree(TOK_VAR, 0, 0, 0, "variable");
 								  $$ = adopt1(temp, $1); }
 		 | expr '[' expr ']'	{ free_ast2($2, $4);
-		 						  astree* temp = new_astree(0, 0, 0, 0, "variable");
+		 						  astree* temp = new_astree(TOK_VAR, 0, 0, 0, "variable");
 								  $$ = adopt2(temp, $1, $3); }
 		 | expr '.' TOK_IDENT	{ free_ast($2); 
 								  $3->symbol = TOK_IDENT;
 								  $3->terminal = true;
-		 						  astree* temp = new_astree(0, 0, 0, 0, "variable");
+		 						  astree* temp = new_astree(TOK_VAR, 0, 0, 0, "variable");
 		 						  $$ = adopt2(temp, $3, $1); }
 		 ;
 		 
 constant : TOK_INTCON 		{ $1->symbol = TOK_INTCON;
 							  $1->terminal = true;
-							  astree* temp = new_astree(0, 0, 0, 0, "constant");
+							  astree* temp = new_astree(TOK_CONSTANT, 0, 0, 0, "constant");
 							  $$ = adopt1(temp, $1); }
 		 | TOK_CHARCON 		{ $1->symbol = TOK_CHARCON;
 							  $1->terminal = true;
-							  astree* temp = new_astree(0, 0, 0, 0, "constant");
+							  astree* temp = new_astree(TOK_CONSTANT, 0, 0, 0, "constant");
 							  $$ = adopt1(temp, $1); }
 		 | TOK_STRINGCON	{ $1->symbol = TOK_STRINGCON;
 							  $1->terminal = true;
-							  astree* temp = new_astree(0, 0, 0, 0, "constant");
+							  astree* temp = new_astree(TOK_CONSTANT, 0, 0, 0, "constant");
 							  $$ = adopt1(temp, $1); }
 		 | TOK_FALSE  		{ $1->symbol = TOK_FALSE;
 							  $1->terminal = true;
-							  astree* temp = new_astree(0, 0, 0, 0, "constant");
+							  astree* temp = new_astree(TOK_CONSTANT, 0, 0, 0, "constant");
 							  $$ = adopt1(temp, $1); }
 		 | TOK_TRUE 		{ $1->symbol = TOK_TRUE;
 							  $1->terminal = true;
-							  astree* temp = new_astree(0, 0, 0, 0, "constant");
+							  astree* temp = new_astree(TOK_CONSTANT, 0, 0, 0, "constant");
 							  $$ = adopt1(temp, $1); }
 		 | TOK_NULL			{ $1->symbol = TOK_NULL;
 							  $1->terminal = true;
-							  astree* temp = new_astree(0, 0, 0, 0, "constant");
+							  astree* temp = new_astree(TOK_CONSTANT, 0, 0, 0, "constant");
 							  $$ = adopt1(temp, $1); }
 		 ;
 

@@ -8,10 +8,12 @@
 
 using namespace std;
 
-void typecheck (FILE* outfile, astree* node);
+void typecheck (FILE* outfile, SymbolTable* symtable, astree* node);
 
-void typecheck_rec (FILE* outfile, SymbolTable* currentSymTable, astree* node);
+string typecheck_rec (FILE* outfile, SymbolTable* symtable, SymbolTable* typetable,  astree* node);
 
-void rec_childrenType(FILE* outfile, SymbolTable* currentSymTable, astree* node);
+void rec_childrenType(FILE* outfile, SymbolTable* symtable, SymbolTable* typetable, astree* node);
+
+string arithmeticOps(FILE* outfile, SymbolTable* symtable, string compare_L, string compare_R);
 
 #endif

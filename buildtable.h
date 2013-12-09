@@ -8,7 +8,7 @@
 
 using namespace std;
 
-void buildSymbolTable (FILE* outfile, astree* root);
+SymbolTable* buildSymbolTable (FILE* outfile, astree* root);
 
 void build_rec (FILE* outfile, SymbolTable* currentSymTable, astree* root);
 

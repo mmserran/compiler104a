@@ -31,6 +31,7 @@ const string cpp_name = "/usr/bin/cpp";
 const size_t LINESIZE = 1024;
 string cppFlags;
 string yyin_cpp_command;
+SymbolTable* symtable;
 
 FILE *tokout, *strout, *astout, *symout;
 const char *outFilename;
@@ -130,11 +131,11 @@ int main (int argc, char** argv) {
     
     /*** SYMBOL TABLE CONSTRUCTION PASS **************************************/
     //Write symbol tables to .sym file
-    buildSymbolTable(symout, yyparse_astree);
+    symtable = buildSymbolTable(symout, yyparse_astree);
     /*************************************************************************/
 
     /*** TYPE CHECKING PASS **************************************************/
-    typecheck(stderr, yyparse_astree);
+    typecheck(stderr, symtable, yyparse_astree);
     /*************************************************************************/
 
     //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
